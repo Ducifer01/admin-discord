@@ -4,6 +4,7 @@ import datetime
 import re
 from typing import List, Dict, Any
 from config_loader import config_manager
+from discord.utils import utcnow
 
 DEFAULTS = {
     "automod_chat": {
@@ -50,6 +51,13 @@ class AutoModChat(commands.Cog):
         self.exempt_cfg: Dict[str, Any] = self.cfg.get('exempt', {})
         self.log_channel_id = self.cfg.get('log_channel_id')
         self._compiled_patterns: List[re.Pattern] = []
+        # Carrega config de castigo para reutilizar o formato de embed
+        try:
+            castigo_raw = config_manager.load_cog('castigo')
+        except Exception:
+            castigo_raw = {}
+        self.castigo_cfg: Dict[str, Any] = castigo_raw.get('castigo', {})
+        self.castigo_embed_cfg: Dict[str, Any] = castigo_raw.get('embed_settings', {})
         self._compile_patterns()
 
     def refresh_config(self):
@@ -66,6 +74,13 @@ class AutoModChat(commands.Cog):
         self.exempt_cfg = self.cfg.get('exempt', {})
         self.log_channel_id = self.cfg.get('log_channel_id')
         self._compile_patterns()
+        # Recarrega também settings de castigo para garantir consistência visual
+        try:
+            castigo_raw = config_manager.reload_cog('castigo')
+        except Exception:
+            castigo_raw = {}
+        self.castigo_cfg = castigo_raw.get('castigo', {})
+        self.castigo_embed_cfg = castigo_raw.get('embed_settings', {})
 
     def _compile_patterns(self):
         flags = 0 if self.case_sensitive else re.IGNORECASE
@@ -111,6 +126,8 @@ class AutoModChat(commands.Cog):
             until = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=duration)
             try:
                 await member.timeout(until, reason=reason)
+                # Após aplicar timeout, gerar embed de castigo no mesmo formato da cog de moderação
+                await self._log_castigo_embed(member, duration, reason)
             except Exception:
                 if self.debug:
                     print('[automod_chat] Falha ao aplicar timeout')
@@ -155,6 +172,67 @@ class AutoModChat(commands.Cog):
         if action == 'delete_punish':
             await self._apply_punishment(member, reason)
         await self._log(message, True, reason)
+
+    # ------------------ Formato embed castigo reutilizado ------------------
+    def _format_duration(self, seconds: int) -> str:
+        if seconds < 60:
+            return f"{seconds} minuto" if seconds == 60 else f"{seconds} segundos" if seconds != 1 else "1 segundo"
+        if seconds < 3600:
+            minutes = seconds // 60
+            return f"{minutes} minuto{'s' if minutes != 1 else ''}"
+        if seconds < 86400:
+            hours = seconds // 3600
+            return f"{hours} hora{'s' if hours != 1 else ''}"
+        days = seconds // 86400
+        return f"{days} dia{'s' if days != 1 else ''}"
+
+    def _build_castigo_embed(self, membro: discord.Member, motivo: str, duration_seconds: int) -> discord.Embed:
+        embed_cfg = self.castigo_embed_cfg
+        castigo_cfg = self.castigo_cfg
+        title = embed_cfg.get('title_castigo', 'Castigo')
+        color_hex = embed_cfg.get('colors', {}).get('castigo', 'FFA500')
+        try:
+            color_val = int(color_hex, 16)
+        except ValueError:
+            color_val = int('FFA500', 16)
+        motivo_cb = embed_cfg.get('motivo_codeblock', True)
+        show_ids = castigo_cfg.get('show_ids', True)
+        embed = discord.Embed(title=title, color=color_val)
+        if embed_cfg.get('use_timestamp', True):
+            embed.timestamp = utcnow()
+        user_field = f"{membro.mention} | {membro.id}" if show_ids else membro.mention
+        bot_member = membro.guild.me or self.bot.user
+        mod_field = f"{bot_member.mention} | {bot_member.id}" if show_ids else bot_member.mention
+        embed.add_field(name='Membro:', value=user_field, inline=True)
+        embed.add_field(name='Moderador:', value=mod_field, inline=True)
+        tempo_fmt = self._format_duration(duration_seconds)
+        embed.add_field(name='Tempo:', value=tempo_fmt, inline=True)
+        motivo_fmt = f"```{motivo}```" if motivo_cb else motivo
+        embed.add_field(name='Motivo:', value=motivo_fmt, inline=False)
+        thumb = embed_cfg.get('thumbnail_url')
+        if thumb:
+            embed.set_thumbnail(url=thumb)
+        banner = embed_cfg.get('banner_url')
+        if banner:
+            embed.set_image(url=banner)
+        footer_text = embed_cfg.get('footer_text', 'Sistema de Moderação')
+        footer_icon = embed_cfg.get('footer_icon_url') or None
+        embed.set_footer(text=footer_text, icon_url=footer_icon)
+        return embed
+
+    async def _log_castigo_embed(self, membro: discord.Member, duration_seconds: int, reason: str):
+        castigo_channel_id = self.castigo_cfg.get('log_channel_id', 0)
+        if not castigo_channel_id:
+            return
+        channel = membro.guild.get_channel(castigo_channel_id)
+        if not isinstance(channel, discord.TextChannel):
+            return
+        try:
+            embed = self._build_castigo_embed(membro, reason, duration_seconds)
+            await channel.send(embed=embed)
+        except Exception:
+            if self.debug:
+                print('[automod_chat] Falha ao enviar embed de castigo automod')
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
