@@ -13,7 +13,7 @@ class TestConfigLoader(unittest.TestCase):
         self.assertIn('logging', cfg)
 
     def test_cog_configs(self):
-        for cog in ['ban', 'castigo', 'buscarmembro', 'clearchat', 'mutecall']:
+        for cog in ['ban', 'castigo', 'buscarmembro', 'clearchat', 'mutecall', 'automod_chat']:
             data = config_manager.load_cog(cog)
             self.assertIsInstance(data, dict)
 

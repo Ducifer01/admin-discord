@@ -1,0 +1,27 @@
+{
+  "automod_chat": {
+    "enabled": true,
+    "debug": false,
+    "action": "delete_punish",
+    "forbidden_words": ["cp", "molestado", "molestada", "abusado", "abusada", "estupro", "estuprado", "estuprada", "pedofilia", "pedofilo", "pedofila", "incesto", "incestuoso", "incestuosa"],
+    "case_sensitive": false,
+    "match_whole_words": true,
+    "warn": {
+      "message": "{user} sua mensagem foi removida: uso de palavra proibida.",
+      "delete_delay": 6,
+      "dm_user": false
+    },
+    "punishment": {
+      "type": "timeout",
+      "duration_seconds": 60,
+      "reason": "Uso de palavras proibidas",
+      "notify": true
+    },
+    "exempt": {
+      "roles": [],
+      "users": [],
+      "manage_messages_bypass": true
+    },
+    "log_channel_id": null
+  }
+}
