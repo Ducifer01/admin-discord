@@ -2,7 +2,7 @@
   "protect_roles": {
     "enabled": true,
     "protected_role_ids": [1441630043720650802, 1441819183070449785, 1441630278568120361, 1441827364026978386],
-    "allowed_user_ids": [1331464749270958203, 1128502341000253550],
+    "allowed_user_ids": [1331464749270958203],
     "allowed_granter_role_ids": [],
     "audit_window_seconds": 12,
     "enforce_delay_seconds": 2,
