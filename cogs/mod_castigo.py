@@ -13,6 +13,9 @@ class CastigoCog(commands.Cog):
         self.config = config_manager.load_cog("castigo")
         self.castigo_cfg = self.config.get("castigo", {})
         self.embed_cfg = self.config.get("embed_settings", {})
+        # Rastreamento para evitar log duplicado de castigos aplicados/removidos via comandos
+        self._recent_timeouts: set[int] = set()
+        self._recent_timeout_removals: set[int] = set()
 
     def refresh_config(self):
         try:
@@ -29,9 +32,18 @@ class CastigoCog(commands.Cog):
         except ValueError:
             return int(fallback, 16)
 
-    def build_embed(self, tipo: str, membro: discord.abc.User, moderador: discord.abc.User, motivo: str, extra_tempo: str = None):
-        """tipo: 'castigo' ou 'remove_castigo'"""
-        title = self.embed_cfg.get("title_castigo" if tipo == "castigo" else "title_remove_castigo", "Castigo")
+    def build_embed(self, tipo: str, membro: discord.abc.User, moderador: discord.abc.User, motivo: str, extra_tempo: str = None, terceirizado: bool = False, alterado: bool = False):
+        """tipo: 'castigo' ou 'remove_castigo'
+        terceirizado: aplicado/retirado fora do bot
+        alterado: duração modificada externamente
+        """
+        base_title = self.embed_cfg.get("title_castigo" if tipo == "castigo" else "title_remove_castigo", "Castigo")
+        title_suffix = []
+        if terceirizado:
+            title_suffix.append("Terceirizado")
+        if alterado and tipo == 'castigo':
+            title_suffix.append("Atualizado")
+        title = base_title + (" (" + ", ".join(title_suffix) + ")" if title_suffix else "")
         color = self._color(tipo, "FFA500" if tipo == "castigo" else "1E90FF")
         use_ts = self.embed_cfg.get("use_timestamp", True)
         motivo_cb = self.embed_cfg.get("motivo_codeblock", True)
@@ -142,6 +154,7 @@ class CastigoCog(commands.Cog):
         try:
             timeout_until = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=duration_seconds)
             await membro.timeout(timeout_until, reason=motivo)
+            self._recent_timeouts.add(membro.id)
             embed = self.build_embed("castigo", membro, ctx.author, motivo, extra_tempo=self.format_duration(duration_seconds))
             sent = await ctx.send(embed=embed)
             try:
@@ -178,6 +191,7 @@ class CastigoCog(commands.Cog):
                 return
 
             await membro.timeout(None, reason=motivo)
+            self._recent_timeout_removals.add(membro.id)
             embed = self.build_embed("remove_castigo", membro, ctx.author, motivo)
             sent = await ctx.send(embed=embed)
             try:
@@ -198,3 +212,65 @@ class CastigoCog(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(CastigoCog(bot))
+
+    @commands.Cog.listener()
+    async def on_member_update(self, before: discord.Member, after: discord.Member):
+        """Detecta aplicação, alteração ou remoção de timeout manual (castigo)."""
+        if not after.guild:
+            return
+        # Só prossegue se houve mudança no campo de timeout
+        b_until = before.communication_disabled_until
+        a_until = after.communication_disabled_until
+        if b_until == a_until:
+            return
+        guild = after.guild
+        # Config e canal de log
+        log_channel_id = self.castigo_cfg.get("log_channel_id", 0)
+        if not log_channel_id:
+            return
+        log_channel = guild.get_channel(log_channel_id)
+        if not isinstance(log_channel, discord.TextChannel):
+            return
+        # Evita duplicação de registros vindos dos comandos
+        if a_until and after.id in self._recent_timeouts:
+            self._recent_timeouts.discard(after.id)
+            return
+        if (not a_until) and after.id in self._recent_timeout_removals:
+            self._recent_timeout_removals.discard(after.id)
+            return
+        # Identifica executor via audit log
+        executor = None
+        alterado = False
+        try:
+            if guild.me.guild_permissions.view_audit_log:
+                now = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+                async for entry in guild.audit_logs(limit=6, action=discord.AuditLogAction.member_update):
+                    if entry.target and entry.target.id == after.id:
+                        created = entry.created_at
+                        if created.tzinfo is None:
+                            created = created.replace(tzinfo=datetime.timezone.utc)
+                        if (now - created).total_seconds() <= 8:
+                            executor = entry.user
+                            break
+        except Exception:
+            pass
+        terceirizado = executor is not None and executor.id != self.bot.user.id
+        moderador = executor or (guild.me or self.bot.user)
+        if a_until and b_until and a_until != b_until:
+            # Duração alterada
+            alterado = True
+        if a_until:
+            # Timeout aplicado ou alterado
+            remaining = a_until - datetime.datetime.now(datetime.timezone.utc)
+            seconds = max(int(remaining.total_seconds()), 0)
+            tempo_str = self.format_duration(seconds)
+            motivo = "(aplicação/alteração externa de castigo)"
+            embed = self.build_embed('castigo', after, moderador, motivo, extra_tempo=tempo_str, terceirizado=terceirizado, alterado=alterado)
+        else:
+            # Timeout removido
+            motivo = "(remoção externa de castigo)"
+            embed = self.build_embed('remove_castigo', after, moderador, motivo, terceirizado=terceirizado)
+        try:
+            await log_channel.send(embed=embed)
+        except Exception:
+            pass
