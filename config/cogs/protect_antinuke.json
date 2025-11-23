@@ -1,0 +1,56 @@
+{
+  "protect_antinuke": {
+    "enabled": true,
+    "debug": false,
+    "log_channel_id": 1441632213740294254,
+    "interval_seconds": 30,
+    "thresholds": {
+      "channel_delete": 3,
+      "role_delete": 2,
+      "emoji_delete": 5,
+      "webhook_delete": 5,
+      "combined": 6
+    },
+    "monitor": {
+      "channel_delete": true,
+      "role_delete": true,
+      "emoji_delete": true,
+      "webhook_delete": true
+    },
+    "punishment": {
+      "type": "timeout", 
+      "timeout_seconds": 1800,
+      "remove_roles": true,
+      "remove_dangerous_only": true,
+      "keep_role_ids": []
+    },
+    "dangerous_permissions": ["administrator", "manage_channels", "manage_roles", "manage_webhooks", "manage_emojis"],
+    "lockdown": {
+      "enabled": true,
+      "apply_on_trigger": true,
+      "slowmode_seconds": 10,
+      "target_channel_ids": [],
+      "all_text_channels": true,
+      "remove_manage_channels_from_roles": true,
+      "restore_after_seconds": 600
+    },
+    "messages": {
+      "log_delete": "AntiNuke: {action} por {executor} alvo={target} (total {count}/{threshold} em {interval}s)",
+      "log_punish": "Punindo {executor} por ações massivas: {reason}",
+      "log_lockdown": "Lockdown aplicado: slowmode={slowmode}s canais={channel_count}",
+      "log_restore": "Lockdown restaurado.",
+      "status_header": "Proteção AntiNuke",
+      "status_main": "Enabled={enabled} | Interval={interval}s | Combined={combined_t}/{combined_th}",
+      "status_thresholds": "Del Canal={cd_t}/{cd_th} | Del Cargo={rd_t}/{rd_th} | Del Emoji={ed_t}/{ed_th} | Del Webhook={wd_t}/{wd_th}",
+      "punish_reason": "Excesso de ações destrutivas"
+    },
+    "log_embed": {
+      "enabled": true,
+      "color": "AA00FF",
+      "title_event": "Evento AntiNuke",
+      "title_punish": "Usuário punido (AntiNuke)",
+      "title_lockdown": "Lockdown Ativado",
+      "title_restore": "Lockdown Encerrado"
+    }
+  }
+}

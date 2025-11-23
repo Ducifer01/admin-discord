@@ -14,7 +14,11 @@ class TestConfigLoader(unittest.TestCase):
 
     def test_cog_configs(self):
         # Adiciona automod_spam e protect_antibot às verificações básicas
-        for cog in ['ban', 'castigo', 'buscarmembro', 'clearchat', 'mutecall', 'automod_chat', 'automod_spam', 'automod_nomention', 'protect_antibot', 'anti_raid']:
+        for cog in [
+            'ban', 'castigo', 'buscarmembro', 'clearchat', 'mutecall',
+            'automod_chat', 'automod_spam', 'automod_nomention',
+            'protect_antibot', 'anti_raid', 'protect_antinuke'
+        ]:
             data = config_manager.load_cog(cog)
             self.assertIsInstance(data, dict)
 

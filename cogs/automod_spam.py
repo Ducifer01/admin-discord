@@ -20,6 +20,13 @@ DEFAULTS = {
             "duration_seconds": 300,
             "reason": "Spam/Flood no chat"
         },
+        "modules": {
+            "flood": True,
+            "repeat": True,
+            "mentions": True,
+            "emojis": True,
+            "caps": True
+        },
         "thresholds": {
             "flood_messages": 6,
             "flood_interval_seconds": 5,
@@ -45,6 +52,7 @@ DEFAULTS = {
             "status_header": "AntiSpam/AntiFlood — resumo",
             "status_main": "Enabled: {enabled} | Ação: {action} | Canal log: {log_channel_id}",
             "status_thresholds": "Flood: {flood_messages}/{flood_interval}s | Repetição: {repeat_same}/{repeat_interval}s | Caps: {caps_ratio} (min {caps_min}) | Mentions: {mentions} | Emojis: {emojis}",
+            "status_modules": "Módulos: flood={m_flood} repeat={m_repeat} mentions={m_mentions} emojis={m_emojis} caps={m_caps}",
             "type_flood": "flood de mensagens",
             "type_repeat": "mensagens repetidas",
             "type_mentions": "menções excessivas",
@@ -67,6 +75,9 @@ class AutoModSpam(commands.Cog):
         self.log_channel_id: int = self.cfg.get('log_channel_id', 0)
         self.action: str = self.cfg.get('action', 'delete_warn')
         self.punish_cfg: Dict[str, Any] = self.cfg.get('punishment', {})
+        self.modules: Dict[str, bool] = self.cfg.get('modules', {
+            'flood': True, 'repeat': True, 'mentions': True, 'emojis': True, 'caps': True
+        })
         self.thresholds: Dict[str, Any] = self.cfg.get('thresholds', {})
         self.ignore_cfg: Dict[str, Any] = self.cfg.get('ignore', {})
         self.warn_cfg: Dict[str, Any] = self.cfg.get('warn', {})
@@ -126,6 +137,9 @@ class AutoModSpam(commands.Cog):
         # unicode emojis grosseiro: contar símbolos não ascii (heurística)
         unicode_count = sum(1 for ch in content if ord(ch) > 0xFFFF or (0x2100 <= ord(ch) <= 0x2BFF))
         return len(custom) + unicode_count
+
+    def _module_enabled(self, name: str) -> bool:
+        return bool(self.modules.get(name, True))
 
     def _caps_ratio(self, content: str) -> float:
         letters = [c for c in content if c.isalpha()]
@@ -224,24 +238,24 @@ class AutoModSpam(commands.Cog):
         now = asyncio.get_event_loop().time()
 
         # Flood
-        if self._detect_flood(message.author.id, now):
+        if self._module_enabled('flood') and self._detect_flood(message.author.id, now):
             reason = self.msgs.get('type_flood', 'flood de mensagens')
             return await self._handle_violation(message, 'flood', reason)
 
         # Repetição
-        if content and self._detect_repeat(message.author.id, content, now):
+        if self._module_enabled('repeat') and content and self._detect_repeat(message.author.id, content, now):
             reason = self.msgs.get('type_repeat', 'mensagens repetidas')
             return await self._handle_violation(message, 'repeat', reason)
 
         # Menções excessivas
         max_mentions = int(self.thresholds.get('max_mentions', 6))
-        if max_mentions > 0 and self._detect_mentions_excess(message, max_mentions):
+        if self._module_enabled('mentions') and max_mentions > 0 and self._detect_mentions_excess(message, max_mentions):
             reason = self.msgs.get('type_mentions', 'menções excessivas')
             return await self._handle_violation(message, 'mentions', reason)
 
         # Emojis
         max_emojis = int(self.thresholds.get('max_emojis', 15))
-        if max_emojis > 0:
+        if self._module_enabled('emojis') and max_emojis > 0:
             ec = self._count_emojis(content)
             if ec >= max_emojis:
                 reason = self.msgs.get('type_emojis', 'excesso de emojis') + f" ({ec} >= {max_emojis})"
@@ -249,7 +263,7 @@ class AutoModSpam(commands.Cog):
 
         # CAPS
         min_caps_len = int(self.thresholds.get('min_caps_length', 15))
-        if len(content) >= min_caps_len:
+        if self._module_enabled('caps') and len(content) >= min_caps_len:
             ratio_trigger = float(self.thresholds.get('caps_ratio_trigger', 0.7))
             ratio = self._caps_ratio(content)
             if ratio >= ratio_trigger:
@@ -287,7 +301,42 @@ class AutoModSpam(commands.Cog):
             caps_ratio=t.get('caps_ratio_trigger'), caps_min=t.get('min_caps_length'),
             mentions=t.get('max_mentions'), emojis=t.get('max_emojis')
         ))
+        lines.append(self.msgs.get('status_modules', 'Módulos: flood={m_flood} repeat={m_repeat} mentions={m_mentions} emojis={m_emojis} caps={m_caps}').format(
+            m_flood=self.modules.get('flood', True),
+            m_repeat=self.modules.get('repeat', True),
+            m_mentions=self.modules.get('mentions', True),
+            m_emojis=self.modules.get('emojis', True),
+            m_caps=self.modules.get('caps', True)
+        ))
         await ctx.reply('\n'.join(lines))
+
+    @commands.command(name='automodspamtoggle')
+    async def automod_spam_toggle(self, ctx: commands.Context, modulo: str = None, estado: str = None):
+        if not ctx.author.guild_permissions.manage_guild:
+            return await ctx.reply('Sem permissão.')
+        if modulo is None or estado is None:
+            return await ctx.reply('Uso: !automodspamtoggle <flood|repeat|mentions|emojis|caps> <on|off>')
+        modulo = modulo.lower()
+        if modulo not in ('flood', 'repeat', 'mentions', 'emojis', 'caps'):
+            return await ctx.reply('Módulo inválido.')
+        estado = estado.lower()
+        if estado not in ('on', 'off'):
+            return await ctx.reply('Estado inválido (use on/off).')
+        self.modules[modulo] = (estado == 'on')
+        # Persistência mínima: atualizar arquivo JSON
+        try:
+            import json, os
+            path = os.path.join('config', 'cogs', 'automod_spam.json')
+            with open(path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            if 'automod_spam' in data:
+                data['automod_spam']['modules'] = self.modules
+                with open(path, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
+        except Exception:
+            if self.debug:
+                print('[automod_spam] Falha ao persistir toggle')
+        await ctx.reply(f'Módulo {modulo} agora está {"ativado" if self.modules[modulo] else "desativado"}.')
 
 
 async def setup(bot: commands.Bot):

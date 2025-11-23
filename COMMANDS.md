@@ -16,7 +16,7 @@ Este documento descreve os comandos disponíveis no bot, suas permissões, final
 - [Automod: AntiSpam/AntiFlood](#automod-antispamantiflood)
 - [Proteção: Anti-Raid](#proteção-anti-raid)
 - [Automod: NoMention](#automod-nomention)
-- [Proteção: AntiBot](#proteção-antibot)
+- [Proteção: AntiNuke](#proteção-antinuke)
 - [Configuração via JSON](#configuração-via-json)
 - [Recarregando Cogs](#recarregando-cogs)
 
@@ -216,6 +216,7 @@ Cog: `automod_spam`
     "log_channel_id": 0,
     "action": "delete_warn",
     "punishment": {"type": "timeout", "duration_seconds": 300, "reason": "Spam/Flood no chat"},
+    "modules": {"flood": true, "repeat": true, "mentions": true, "emojis": true, "caps": true},
     "thresholds": {
       "flood_messages": 6,
       "flood_interval_seconds": 5,
@@ -236,6 +237,16 @@ Cog: `automod_spam`
 **Comandos**:
 - `!automodspamreload` — Recarrega a config.
 - `!automodspamstatus` — Mostra limites atuais.
+- `!automodspamtoggle <modulo> <on|off>` — Ativa ou desativa módulo específico.
+
+**Módulos** (`modules`):
+- `flood`: detecção de muitas mensagens em intervalo curto.
+- `repeat`: repetição do mesmo conteúdo.
+- `mentions`: menções excessivas (@users/@roles/@everyone/@here).
+- `emojis`: quantidade excessiva de emojis.
+- `caps`: abuso de letras maiúsculas.
+
+Desativar (false) um módulo evita que ele gere punições ou deletando mensagens, mantendo os demais ativos. Útil para ajuste fino sem remover thresholds.
 
 **Boas práticas**:
 - Ajuste `flood_messages` e `flood_interval_seconds` conforme atividade normal do servidor.
@@ -371,6 +382,54 @@ Cog: `automod_nomention`
 - Ajuste `duration_seconds` do timeout conforme severidade.
 
 **Exemplo**: Usuário sem permissão menciona @everyone → mensagem deletada, aviso enviado e timeout aplicado (se `delete_punish`).
+
+---
+## Proteção: AntiNuke
+Cog: `protect_antinuke`
+
+**Objetivo**: Detectar e reagir rapidamente a tentativas de destruição em massa (deleção de canais, cargos, emojis, webhooks). Aplica punições ao executor e pode iniciar um lockdown temporário para reduzir danos.
+
+**Monitoramento de Ações** (config `protect_antinuke.json`):
+- `monitor.channel_delete`, `monitor.role_delete`, `monitor.emoji_delete`, `monitor.webhook_delete` ativam/desativam cada tipo.
+- Janela de tempo: `interval_seconds` (ex: 30s). Dentro dela contam-se ações por executor.
+- Limites por ação em `thresholds.*` (ex: `channel_delete: 3`).
+- Limite combinado `thresholds.combined` soma todas as ações (ex: 6 em 30s).
+
+**Punishment** (`punishment.type`):
+- `ban`, `kick`, `timeout`, `remove_roles`.
+- `timeout_seconds`: duração caso `type=timeout`.
+- `remove_roles`: se verdadeiro e `type=remove_roles`, remove cargos; pode ser apenas cargos perigosos se `remove_dangerous_only=true`.
+- `keep_role_ids`: cargos preservados mesmo em remoção.
+- `dangerous_permissions`: lista de flags (ex: `administrator`, `manage_channels`) usadas para selecionar cargos perigosos.
+
+**Lockdown** (`lockdown`):
+- `enabled`: ativa recurso.
+- `apply_on_trigger`: aplica automaticamente quando alguém excede limite.
+- `slowmode_seconds`: aplica slowmode a canais alvo.
+- `all_text_channels` ou `target_channel_ids`: escopo dos canais.
+- `remove_manage_channels_from_roles`: remove permissões críticas temporariamente de cargos.
+- `restore_after_seconds`: tempo para reverter slowmode e permissões.
+
+**Comandos**:
+- `!antinukestatus` — Mostra estado, intervalos e contadores (para o autor) comparados aos limites.
+- `!antinukereload` — Recarrega o JSON da proteção.
+- `!antinukerestorelockdown` — Reverte manualmente lockdown ativo antes do tempo.
+- `!antinukeclear` — Limpa contadores internos (útil após auditoria ou manutenção).
+
+**Eventos Monitorados**:
+- `on_guild_channel_delete`, `on_guild_role_delete`: captura deleções + audit log para executor.
+- `on_guild_emojis_update`: identifica emojis removidos comparando antes/depois.
+- `on_webhooks_update`: tenta captar deleções de webhooks via audit log.
+
+**Embed de Log** (`log_embed`): títulos configuráveis para: evento, punição, lockdown ativado/restaurado.
+
+**Exemplo**: Usuário apaga 3 canais em <30s → excede `channel_delete` → cog bane usuário e aplica lockdown (slowmode 10s + remove permissões de gerenciamento), restaura automaticamente após 10min.
+
+**Boas Práticas**:
+- Ajuste limites conforme tamanho e frequência legítima de alterações administrativas.
+- Use `ban` apenas se tiver certeza de abuso; para menor impacto, prefira `timeout` inicial.
+- Defina `log_channel_id` para auditoria (sempre revisar ações tomadas).
+- Mantenha o cargo do bot acima dos cargos com permissões perigosas.
 
 ---
 ## Configuração via JSON

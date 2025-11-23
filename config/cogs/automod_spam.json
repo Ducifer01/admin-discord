@@ -9,6 +9,13 @@
       "duration_seconds": 300,
       "reason": "Spam/Flood no chat"
     },
+    "modules": {
+      "flood": true,
+      "repeat": true,
+      "mentions": true,
+      "emojis": true,
+      "caps": false
+    },
     "thresholds": {
       "flood_messages": 6,
       "flood_interval_seconds": 5,
@@ -34,6 +41,7 @@
       "status_header": "AntiSpam/AntiFlood — resumo",
       "status_main": "Enabled: {enabled} | Ação: {action} | Canal log: {log_channel_id}",
       "status_thresholds": "Flood: {flood_messages}/{flood_interval}s | Repetição: {repeat_same}/{repeat_interval}s | Caps: {caps_ratio} (min {caps_min}) | Mentions: {mentions} | Emojis: {emojis}",
+  "status_modules": "Módulos: flood={m_flood} repeat={m_repeat} mentions={m_mentions} emojis={m_emojis} caps={m_caps}",
       "type_flood": "flood de mensagens",
       "type_repeat": "mensagens repetidas",
       "type_mentions": "menções excessivas",
