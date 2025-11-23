@@ -19,6 +19,8 @@ DEFAULTS = {
         "bypass_roles": [],
         "ignore_channels": [],
         "log_channel_id": 0,
+        "use_embed": True,
+        "embed_color": "D9534F",
         "feedback": {
             "notify_user": True,
             "delete_delay": 5,
@@ -26,6 +28,11 @@ DEFAULTS = {
         },
         "messages": {
             "deleted": "{user} sua mensagem foi removida: {reason}",
+            "embed_title": "Proteção de Links",
+            "embed_field_user": "Usuário",
+            "embed_field_channel": "Canal",
+            "embed_field_reason": "Motivo",
+            "embed_field_excerpt": "Trecho",
             "summary_header": "Config proteção de links:",
             "line_domain": "{type}: {domain}",
             "mode_info": "Modo atual: {mode}",
@@ -98,17 +105,26 @@ class ProtectLinksCog(commands.Cog):
         except Exception:
             return
         if notify:
-            text = self.msgs.get('deleted', '{user} sua mensagem foi removida: {reason}').format(user=message.author.mention, reason=reason)
-            try:
-                sent = await message.channel.send(text)
-                if delete_delay > 0:
-                    await asyncio.sleep(delete_delay)
-                    try:
-                        await sent.delete()
-                    except Exception:
-                        pass
-            except Exception:
-                pass
+            if self.cfg.get('use_embed', True):
+                try:
+                    emb = self._build_feedback_embed(message, reason)
+                    sent = await message.channel.send(embed=emb)
+                    if delete_delay > 0:
+                        await sent.delete(delay=delete_delay)
+                except Exception:
+                    pass
+            else:
+                text = self.msgs.get('deleted', '{user} sua mensagem foi removida: {reason}').format(user=message.author.mention, reason=reason)
+                try:
+                    sent = await message.channel.send(text)
+                    if delete_delay > 0:
+                        await asyncio.sleep(delete_delay)
+                        try:
+                            await sent.delete()
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
         if dm_user:
             try:
                 await message.author.send(f"Sua mensagem foi removida: {reason}")
@@ -118,7 +134,11 @@ class ProtectLinksCog(commands.Cog):
             ch = message.guild.get_channel(self.log_channel_id)
             if isinstance(ch, discord.TextChannel):
                 try:
-                    await ch.send(f"Removido link de {message.author} em {message.channel.mention}: {reason}\nConteúdo: {message.content[:1900]}")
+                    if self.cfg.get('use_embed', True):
+                        emb = self._build_log_embed(message, reason)
+                        await ch.send(embed=emb)
+                    else:
+                        await ch.send(f"Removido link de {message.author} em {message.channel.mention}: {reason}\nConteúdo: {self._sanitize_links_for_plain(message.content[:1900])}")
                 except Exception:
                     pass
 
@@ -189,3 +209,52 @@ class ProtectLinksCog(commands.Cog):
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(ProtectLinksCog(bot))
+
+# ---------------- EMBED HELPERS ----------------
+def _sanitize_for_embed(text: str) -> str:
+    # Evita tornar links clicáveis: substitui . por [.] e injeta zero-width após ://
+    # Também corta para tamanho seguro
+    if not text:
+        return '(vazio)'
+    sanitized = re.sub(r'https?://', lambda m: m.group(0) + '\u200b', text)
+    sanitized = sanitized.replace('.', '[.]')
+    return sanitized[:500]
+
+def _excerpt(msg: discord.Message) -> str:
+    return _sanitize_for_embed(msg.content)
+
+def _color_from_hex(hex_str: str) -> int:
+    try:
+        return int(hex_str, 16)
+    except Exception:
+        return int('D9534F', 16)
+
+def _build_base_embed(cfg: Dict[str, Any], msgs: Dict[str, str], color_hex: str, title_key: str) -> discord.Embed:
+    title = msgs.get('embed_title', 'Proteção')
+    color = _color_from_hex(color_hex)
+    emb = discord.Embed(title=title, color=color)
+    return emb
+
+def _field_name(msgs: Dict[str,str], key: str, fallback: str) -> str:
+    return msgs.get(key, fallback)
+
+def _format_reason(reason: str) -> str:
+    return reason.replace('`', '\u200b`')
+
+def ProtectLinksCog__build_feedback_embed(self: ProtectLinksCog, message: discord.Message, reason: str) -> discord.Embed:
+    emb = _build_base_embed(self.cfg, self.msgs, self.cfg.get('embed_color', 'D9534F'), 'embed_title')
+    user_field = f"{message.author.mention} | {message.author.id}"
+    emb.add_field(name=_field_name(self.msgs,'embed_field_user','Usuário'), value=user_field, inline=True)
+    emb.add_field(name=_field_name(self.msgs,'embed_field_channel','Canal'), value=message.channel.mention, inline=True)
+    emb.add_field(name=_field_name(self.msgs,'embed_field_reason','Motivo'), value=_format_reason(reason), inline=False)
+    emb.add_field(name=_field_name(self.msgs,'embed_field_excerpt','Trecho'), value=f"```{_excerpt(message)}```", inline=False)
+    return emb
+
+def ProtectLinksCog__build_log_embed(self: ProtectLinksCog, message: discord.Message, reason: str) -> discord.Embed:
+    emb = ProtectLinksCog__build_feedback_embed(self, message, reason)
+    return emb
+
+# Monkey patch methods into class (keeps single file, minimal diff in existing code flow)
+ProtectLinksCog._build_feedback_embed = ProtectLinksCog__build_feedback_embed
+ProtectLinksCog._build_log_embed = ProtectLinksCog__build_log_embed
+ProtectLinksCog._sanitize_links_for_plain = lambda self, text: _sanitize_for_embed(text)
