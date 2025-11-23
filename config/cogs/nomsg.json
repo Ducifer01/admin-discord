@@ -11,17 +11,6 @@
         "bypass_roles": [],
         "delete_reason": "Apenas imagens são permitidas neste canal.",
         "log_channel_id": 1441978238900506778
-      },
-      {
-        "channel_id": 1441610401153286154,
-        "allow_text": false,
-        "allow_images": true,
-        "allow_videos": true,
-        "allow_other_attachments": false,
-        "max_attachments": 0,
-        "bypass_roles": [],
-        "delete_reason": "Somente imagens e vídeos é permitido neste canal.",
-        "log_channel_id": 1441978238900506778
       }
     ],
     "feedback": {
