@@ -1,6 +1,6 @@
 {
   "buscarmembro": {
-    "authorized_roles": [1441906983145050143],
+    "authorized_roles": [1441630043720650802, 1441819183070449785, 1441827364026978386, 1441630278568120361],
     "delete_delay": 5,
     "mensagens": {
       "bot": "Ah pronto, {user}, procurando o próprio bot em call... 🤖",

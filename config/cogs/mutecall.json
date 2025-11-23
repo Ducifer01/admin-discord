@@ -1,14 +1,14 @@
 {
   "mutecall": {
-    "muted_role_id": 1441908021142749224,
-    "authorized_roles": [1441906983145050143],
+    "muted_role_id": 1441980830628188230,
+    "authorized_roles": [1441630043720650802, 1441819183070449785, 1441827364026978386, 1441630278568120361],
     "interval_seconds": 10,
     "batch_sleep_every": 10,
     "batch_sleep_seconds": 1,
     "enable_debug": false,
     "delete_invocation_seconds": 1,
     "delete_bot_reply_seconds": 5,
-    "log_channel_id": 0,
+    "log_channel_id": 1441979759658532916,
     "embed_settings": {
       "delete_message_delay": 5,
       "colors": {

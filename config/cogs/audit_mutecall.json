@@ -1,7 +1,7 @@
 {
   "audit_mutecall": {
     "enabled": true,
-    "log_channel_id": 0,
+    "log_channel_id": 1441979759658532916,
     "audit_window_seconds": 5,
     "log_embed": {
       "enabled": true,

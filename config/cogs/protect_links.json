@@ -2,15 +2,15 @@
   "protect_links": {
     "enabled": true,
     "mode": "whitelist", 
-    "domains_whitelist": ["youtube.com", "youtu.be"],
+    "domains_whitelist": ["youtube.com", "youtu.be", "cdn.discordapp.com", "media.discordapp.net", "open.spotify.com", "spotify.com"],
     "domains_blacklist": [],
     "regex_whitelist": [],
     "regex_blacklist": [],
     "delete_reason_whitelist_fail": "Link não permitido neste servidor.",
     "delete_reason_blacklist_hit": "Link bloqueado.",
     "bypass_roles": [],
-    "ignore_channels": [],
-    "log_channel_id": 0,
+    "ignore_channels": [1441970560291569694],
+    "log_channel_id": 1441978238900506778,
     "feedback": {
       "notify_user": true,
       "delete_delay": 5,
@@ -26,3 +26,4 @@
     "debug": false
   }
 }
+

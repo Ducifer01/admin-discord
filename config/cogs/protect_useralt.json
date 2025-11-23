@@ -4,7 +4,7 @@
     "min_account_age_hours": 168,
     "ban": true,
     "kick_if_ban_fails": true,
-    "log_channel_id": 0,
+    "log_channel_id": 1441978238900506778,
     "log_embed": {
       "enabled": true,
       "color": "FF3333",

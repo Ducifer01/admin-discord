@@ -1,8 +1,8 @@
 {
   "mutechat": {
-    "muted_role_id": 1441952321587118182,
+    "muted_role_id": 1441981075998900285,
     "authorized_roles": [],
-    "log_channel_id": 0,
+    "log_channel_id": 1441979759658532916,
     "delete_bot_reply_seconds": 10,
     "dm_user": false,
     "embed_settings": {

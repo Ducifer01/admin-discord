@@ -1,7 +1,7 @@
 {
   "audit_channel": {
     "enabled": true,
-    "log_channel_id": 0,
+    "log_channel_id": 1441979222255206525,
     "audit_window_seconds": 5,
     "log_embed": {
       "enabled": true,

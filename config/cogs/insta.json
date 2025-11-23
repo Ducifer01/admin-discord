@@ -1,7 +1,7 @@
 {
   "insta": {
-    "male_channel_id": 1441919372753899520,
-    "female_channel_id": 1441919391108300963,
+    "male_channel_id": 1441610542866497596,
+    "female_channel_id": 0,
     "pagination_size": 5,
     "delete_message_delay": 5,
     "webhook_name": "InstaFeed",
