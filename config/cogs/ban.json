@@ -1,0 +1,30 @@
+{
+  "ban": {
+    "authorized_roles": [1441906983145050143],
+    "log_channel_id": 1441911913666842684,
+    "show_ids": true
+  },
+  "embed_settings": {
+    "delete_message_delay": 8,
+    "colors": {
+      "ban": "FF8C00",
+      "unban": "1E90FF"
+    },
+    "title_ban": "⚔️ | Banimento",
+    "title_unban": "🛠️ | Desbanimento",
+    "icon_ban": "",
+    "icon_unban": "",
+    "footer_text": "Sistema de Moderação",
+    "footer_icon_url": "",
+    "motivo_codeblock": true,
+    "use_timestamp": true,
+    "thumbnail_url": "",
+    "banner_url": ""
+  },
+  "notifications": {
+    "enviar_dm_banidos": true,
+    "enviar_dm_castigos": false,
+    "user_notificados": [],
+    "cargos_notificados": []
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "audit_roles": {
+    "enabled": true,
+    "log_channel_id": 0,
+    "audit_window_seconds": 5,
+    "log_embed": {
+      "enabled": true,
+      "color": "FFAA33",
+      "title_roles": "Mudança de cargos",
+      "title_role_perms": "Permissões de cargo"
+    },
+    "options": {
+      "log_member_roles_change": true,
+      "log_role_permissions_change": true
+    },
+    "messages": {
+      "roles_added": "{executor} adicionou cargos {roles} ao {target}",
+      "roles_removed": "{executor} removeu cargos {roles} de {target}",
+      "roles_changed_unknown": "Cargos mudaram em {target} (executor desconhecido) adicionados: {added} removidos: {removed}",
+      "role_perms_changed": "{executor} modificou permissões do cargo {role}",
+      "role_perms_changed_unknown": "Permissões modificadas em {role} (executor desconhecido)",
+      "status_header": "Auditoria cargos",
+      "status_main": "Habilitado: {enabled} | Janela: {window}s",
+      "status_channel": "Canal log: {channel}",
+      "status_opts": "Log member roles: {member_roles} | Log role perms: {role_perms}"
+    },
+    "debug": false
+  }
+}

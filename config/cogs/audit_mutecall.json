@@ -1,0 +1,27 @@
+{
+  "audit_mutecall": {
+    "enabled": true,
+    "log_channel_id": 0,
+    "audit_window_seconds": 5,
+    "log_embed": {
+      "enabled": true,
+      "color": "9933FF",
+      "title_mute": "Silêncio em call",
+      "title_unmute": "Remoção de silêncio",
+      "title_deaf": "Ensurdecimento em call",
+      "title_undeaf": "Remoção de ensurdecimento"
+    },
+    "messages": {
+      "mute_other": "{executor} silenciou {target}",
+      "unmute_other": "{executor} removeu silêncio de {target}",
+      "deaf_other": "{executor} ensurdeceu {target}",
+      "undeaf_other": "{executor} removeu ensurdecimento de {target}",
+      "mute_self": "{target} se auto-silenciou (ignorado)",
+      "deaf_self": "{target} se auto-ensurdeceu (ignorado)",
+      "status_header": "Auditoria mute/deaf call",
+      "status_main": "Habilitado: {enabled} | Janela: {window}s",
+      "status_channel": "Canal log: {channel}"
+    },
+    "debug": false
+  }
+}

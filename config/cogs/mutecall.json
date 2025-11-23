@@ -1,0 +1,33 @@
+{
+  "mutecall": {
+    "muted_role_id": 1441908021142749224,
+    "authorized_roles": [1441906983145050143],
+    "interval_seconds": 10,
+    "batch_sleep_every": 10,
+    "batch_sleep_seconds": 1,
+    "enable_debug": false,
+    "delete_invocation_seconds": 1,
+    "delete_bot_reply_seconds": 5,
+    "log_channel_id": 0,
+    "embed_settings": {
+      "delete_message_delay": 5,
+      "colors": {
+        "mute": "FFAA00",
+        "unmute": "1E90FF"
+      },
+      "title_mute": "🔇 | Membro mutado em canais de voz",
+      "title_unmute": "🔊 | Membro desmutado",
+      "footer_text": "Sistema de Moderação",
+      "footer_icon_url": "",
+      "motivo_codeblock": true,
+      "use_timestamp": true,
+      "show_ids": true,
+      "thumbnail_url": "",
+      "banner_url": ""
+    },
+    "messages": {
+      "no_permission": "Você não tem permissão para usar este comando.",
+      "invalid_duration": "Formato de duração inválido. Use s/m/h/d (ex: 5m)."
+    }
+  }
+}

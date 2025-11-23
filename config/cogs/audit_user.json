@@ -1,0 +1,39 @@
+{
+  "audit_user": {
+    "enabled": true,
+    "log_channel_id": 0,
+    "audit_window_seconds": 5,
+    "log_embed": {
+      "enabled": true,
+      "color": "0077AA",
+      "title_message_delete": "Mensagem apagada",
+      "title_message_bulk_delete": "Mensagens apagadas em massa",
+      "title_voice_join": "Entrou na call",
+      "title_voice_leave": "Saiu da call",
+      "title_voice_move": "Moveu de call"
+    },
+    "options": {
+      "log_message_delete": true,
+      "log_bulk_delete": true,
+      "log_voice": true,
+      "include_content": true,
+      "truncate_content": 300,
+      "avoid_duplicate_with_movecall": true
+    },
+    "messages": {
+      "message_delete_other": "{executor} apagou mensagem de {author}",
+      "message_delete_self": "{author} apagou a própria mensagem",
+      "message_delete_unknown": "Mensagem de {author} apagada (executor desconhecido)",
+      "message_bulk_delete": "{executor} apagou {count} mensagens em {channel}",
+      "voice_join_self": "{user} entrou em {channel}",
+      "voice_leave_self": "{user} saiu de {channel}",
+      "voice_move_self": "{user} moveu-se de {from} para {to}",
+      "voice_move_other": "{executor} moveu {user} de {from} para {to}",
+      "status_header": "Auditoria usuário",
+      "status_main": "Habilitado: {enabled} | Janela audit: {window}s",
+      "status_opts": "Msg delete: {msgdel} | Bulk: {bulk} | Voz: {voice}"
+      ,"status_dup": "Evitar duplicatas movecall: {avoid_dup}"
+    },
+    "debug": false
+  }
+}

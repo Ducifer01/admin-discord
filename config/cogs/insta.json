@@ -1,0 +1,19 @@
+{
+  "insta": {
+    "male_channel_id": 1441919372753899520,
+    "female_channel_id": 1441919391108300963,
+    "pagination_size": 5,
+    "delete_message_delay": 5,
+    "webhook_name": "InstaFeed",
+    "allow_images": true,
+    "allow_videos": true,
+    "max_attachments": 1,
+    "buttons": {
+      "like_label": "❤️",
+      "comment_label": "💬",
+      "show_likes_label": "📖",
+      "show_comments_label": "📝",
+      "delete_label": "🗑️"
+    }
+  }
+}

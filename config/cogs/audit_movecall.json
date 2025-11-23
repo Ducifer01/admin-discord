@@ -1,0 +1,27 @@
+{
+  "audit_movecall": {
+    "enabled": true,
+    "log_channel_id": 0,
+    "audit_window_seconds": 5,
+    "log_embed": {
+      "enabled": true,
+      "color": "3366FF",
+      "title_move": "Movimento na call",
+      "title_disconnect": "Desconexão da call"
+    },
+    "options": {
+      "avoid_duplicate_with_useraudit": true
+    },
+    "messages": {
+      "user_self_move": "{target} moveu-se de {from} para {to}",
+      "user_moved_other": "{executor} moveu {target} de {from} para {to}",
+      "user_self_disconnect": "{target} saiu da call {from}",
+      "user_disconnect_other": "{executor} desconectou {target} da call {from}",
+      "status_header": "Auditoria movimentações call",
+      "status_main": "Habilitado: {enabled} | Janela: {window}s",
+      "status_channel": "Canal log: {channel}",
+      "status_dup": "Evitar duplicatas audit_user: {avoid_dup}"
+    },
+    "debug": false
+  }
+}

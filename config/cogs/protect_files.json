@@ -1,0 +1,38 @@
+{
+  "protect_files": {
+    "enabled": true,
+    "allow_images": true,
+    "allow_videos": true,
+    "allow_gifs": true,
+    "allowed_extensions": [],
+    "blocked_extensions": [
+      "exe", "bat", "cmd", "msi", "js", "jar", "scr", "com", "ps1", "vbs", "lnk", "reg", "dll", "sys",
+      "zip", "rar", "7z", "gz", "tar", "iso"
+    ],
+    "bypass_roles": [],
+    "ignore_channels": [],
+    "log_channel_id": 0,
+    "log_embed": {
+      "enabled": true,
+      "color": "FFAA00",
+      "title_blocked": "Anexo bloqueado",
+      "title_removed": "Mensagem removida (arquivo não permitido)"
+    },
+    "feedback": {
+      "notify_user": true,
+      "delete_delay": 5,
+      "dm_user": false
+    },
+    "messages": {
+      "deleted": "{user} sua mensagem foi removida: {reason}",
+      "reason_blocked_ext": "Extensão bloqueada: {ext}",
+      "reason_not_allowed": "Tipo de arquivo não permitido neste canal.",
+      "summary_header": "Proteção de arquivos",
+      "summary_flags": "Imgs:{allow_images} Vídeos:{allow_videos} GIFs:{allow_gifs}",
+      "line_allowed": "Permitido: .{ext}",
+      "line_blocked": "Bloqueado: .{ext}",
+      "no_items": "(lista vazia)"
+    },
+    "debug": false
+  }
+}

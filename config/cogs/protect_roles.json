@@ -1,0 +1,35 @@
+{
+  "protect_roles": {
+    "enabled": true,
+    "protected_role_ids": [1441906983145050143],
+    "allowed_user_ids": [],
+    "allowed_granter_role_ids": [],
+    "audit_window_seconds": 12,
+    "enforce_delay_seconds": 2,
+    "enforce_retries": 3,
+    "bypass_bot_users": true,
+    "log_channel_id": 0,
+    "log_embed": {
+      "enabled": true,
+      "color": "FF5555",
+      "title_denied": "Cargo protegido revertido",
+      "title_retry": "Reforço de proteção",
+      "title_fail": "Falha ao remover cargo"
+    },
+    "feedback": {
+      "notify_executer": false,
+      "notify_target": false,
+      "notify_message": "Você não está autorizado a conceder o cargo protegido {role}. Ação revertida.",
+      "delete_delay": 6
+    },
+    "messages": {
+      "log_denied": "Proteção de cargos: {executor} tentou conceder {roles} para {member}. Ação revertida.",
+      "log_fail": "Falha ao remover {roles} de {member}: {error}",
+      "log_retry": "Reforço #{attempt}: removendo {roles} de {member}.",
+      "status_header": "Proteção de cargos — resumo",
+      "status_roles": "Cargos protegidos: {roles}",
+      "status_allowed": "Autorizados (users): {users} | (roles): {roles}"
+    },
+    "debug": false
+  }
+}

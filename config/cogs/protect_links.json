@@ -1,0 +1,28 @@
+{
+  "protect_links": {
+    "enabled": true,
+    "mode": "whitelist", 
+    "domains_whitelist": ["youtube.com", "youtu.be"],
+    "domains_blacklist": [],
+    "regex_whitelist": [],
+    "regex_blacklist": [],
+    "delete_reason_whitelist_fail": "Link não permitido neste servidor.",
+    "delete_reason_blacklist_hit": "Link bloqueado.",
+    "bypass_roles": [],
+    "ignore_channels": [],
+    "log_channel_id": 0,
+    "feedback": {
+      "notify_user": true,
+      "delete_delay": 5,
+      "dm_user": false
+    },
+    "messages": {
+      "deleted": "{user} sua mensagem foi removida: {reason}",
+      "summary_header": "Config proteção de links:",
+      "line_domain": "{type}: {domain}",
+      "mode_info": "Modo atual: {mode}",
+      "no_domains": "(lista vazia)"
+    },
+    "debug": false
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "castigo": {
+    "authorized_roles": [],
+    "log_channel_id": 0,
+    "show_ids": true
+  },
+  "embed_settings": {
+    "delete_message_delay": 8,
+    "colors": {
+      "castigo": "FFA500",
+      "remove_castigo": "1E90FF"
+    },
+    "title_castigo": "⚒️ | Castigo",
+    "title_remove_castigo": "🧹 | Castigo Removido",
+    "footer_text": "Sistema de Moderação",
+    "footer_icon_url": "",
+    "motivo_codeblock": true,
+    "use_timestamp": true,
+    "thumbnail_url": "",
+    "banner_url": ""
+  },
+  "notifications": {
+    "enviar_dm_castigos": true,
+    "enviar_dm_banidos": false,
+    "user_notificados": [],
+    "cargos_notificados": []
+  }
+}

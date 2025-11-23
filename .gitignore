@@ -1,0 +1,75 @@
+#############################################
+# Python / Discord Bot .gitignore
+# Atualizado para remover artefatos e segredos locais
+#############################################
+
+# Bytecode e caches
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+*.log
+log/
+logs/
+
+# Ambientes virtuais
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Arquivos de configuração sensíveis / segredos
+*.env
+.env.*
+token.txt
+secrets.json
+config/local.json
+
+# Ferramentas / análise
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
+.coverage*
+coverage.xml
+htmlcov/
+
+# Pacotes / distribuição (caso use futuramente)
+build/
+dist/
+wheels/
+*.egg-info/
+.eggs/
+*.egg
+MANIFEST
+
+# IDE / editor
+.idea/
+.vscode/
+*.iml
+
+# Sistemas operacionais
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# Jupyter (se vier a usar)
+.ipynb_checkpoints/
+
+# Dados temporários (ajuste conforme necessidade)
+data/temp/
+data/cache/
+
+# Evitar ignorar arquivos necessários:
+# Mantenha config/*.json e data/insta_posts.json versionados para funcionamento.
+# Ajuste se algum contiver segredos.
+
+# Filtro final de segurança para binários acidentais
+*.so
+*.dll
+*.exe
+
+# Fim

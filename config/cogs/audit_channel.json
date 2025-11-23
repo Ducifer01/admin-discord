@@ -1,0 +1,32 @@
+{
+  "audit_channel": {
+    "enabled": true,
+    "log_channel_id": 0,
+    "audit_window_seconds": 5,
+    "log_embed": {
+      "enabled": true,
+      "color": "33CC99",
+      "title_channel_update": "Atualização de canal",
+      "title_channel_create": "Criação de canal",
+      "title_channel_delete": "Exclusão de canal"
+    },
+    "options": {
+      "log_update": true,
+      "log_create": false,
+      "log_delete": false
+    },
+    "messages": {
+      "channel_update": "{executor} modificou canal {channel} alterações: {changes}",
+      "channel_update_unknown": "Canal {channel} modificado (executor desconhecido) alterações: {changes}",
+      "channel_create": "{executor} criou canal {channel}",
+      "channel_create_unknown": "Canal {channel} criado (executor desconhecido)",
+      "channel_delete": "{executor} excluiu canal {channel}",
+      "channel_delete_unknown": "Canal {channel} excluído (executor desconhecido)",
+      "status_header": "Auditoria canais",
+      "status_main": "Habilitado: {enabled} | Janela: {window}s",
+      "status_channel": "Canal log: {channel}",
+      "status_opts": "Update: {update} | Create: {create} | Delete: {delete}"
+    },
+    "debug": false
+  }
+}

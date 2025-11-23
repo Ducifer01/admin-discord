@@ -1,0 +1,36 @@
+{
+  "bot": {
+    "activity": "Moderando o servidor",
+    "status": "online",
+    "sync_commands_guild_only": true
+  },
+  "logging": {
+    "enabled": true,
+    "level": "INFO"
+  },
+  "errors": {
+    "delete_delay": 5,
+    "messages": {
+      "missing_permissions": "vc n tem permissão para usar esse comando",
+      "bot_missing_permissions": "Eu não tenho as permissões necessárias para isso.",
+      "missing_argument": "Faltou um argumento obrigatório: {param}",
+      "command_not_found": "Comando inexistente.",
+      "generic": "Ocorreu um erro. Tente novamente mais tarde."
+    }
+  },
+  "permission_embed": {
+    "enabled": true,
+    "title": "🔒 Acesso Negado",
+    "template": "{user}, você não pode usar este comando.",
+    "color": "D9534F",
+    "delete_delay_override": 5
+  },
+  "message_cleanup": {
+    "enabled": true,
+    "user_command_delete_delay": 1,
+    "bot_reply_delete_delay": 5,
+    "ignore_commands": ["help"],
+    "ignore_prefixes": ["//"],
+    "debug_log": false
+  }
+}

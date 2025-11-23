@@ -1,0 +1,16 @@
+{
+  "clearchat": {
+    "max_messages": 999,
+    "delete_delay": 5,
+    "require_voice": true,
+    "messages": {
+      "need_amount": "{user}, você precisa informar a quantidade de mensagens (ex: !clearchat 10)",
+      "range_error": "{user}, a quantidade precisa estar entre 1 e {max}.",
+      "no_voice": "{user}, você precisa estar em um canal de voz para usar esse comando!",
+      "no_perm_bot": "Não tenho permissão para apagar mensagens em {channel}!",
+      "confirm": "Apagando {amount} mensagens em {channel}...",
+      "success": "{deleted} mensagens apagadas com sucesso em {channel}.",
+      "none": "Nenhuma mensagem recente para apagar em {channel}."
+    }
+  }
+}

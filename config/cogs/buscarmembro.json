@@ -1,0 +1,12 @@
+{
+  "buscarmembro": {
+    "authorized_roles": [1441906983145050143],
+    "delete_delay": 5,
+    "mensagens": {
+      "bot": "Ah pronto, {user}, procurando o próprio bot em call... 🤖",
+      "sem_permissao": "{user}, você não pode usar esse comando.",
+      "encontrado": "{user}, {target} está na call {channel}.",
+      "nao_encontrado": "{user}, {target} não está em nenhuma call agora."
+    }
+  }
+}
