@@ -160,32 +160,33 @@ class AntiRaidCog(commands.Cog):
             return
         self._emergency_active = True
         self._emergency_started_at = self._now()
-        embed_cfg = self.emergency_cfg.get('notify_embed', {})
-        title = embed_cfg.get('title_activate', 'Modo Emergência Ativado')
-        await self._log_embed(guild, title, [
-            ('Motivo', reason, False),
-            ('Entradas janela', str(len(self._join_times)), True),
-            ('Flagged', str(len(self._flagged_join_times)), True)
-        ])
-        # Ações
+
+        actions: List[str] = []
+
+        # Revogar convites
         if self.emergency_cfg.get('revoke_invites', True):
+            revoked = 0
             try:
                 invites = await guild.invites()
                 for inv in invites:
                     try:
                         await inv.delete(reason='Anti-Raid emergência')
-                        await asyncio.sleep(0.3)  # rate-limit friendly
+                        revoked += 1
+                        await asyncio.sleep(0.3)
                     except Exception:
                         pass
+                actions.append(f"Convites revogados: {revoked}")
             except Exception as e:
-                await self._log_embed(guild, 'Aviso revogar convites', [
-                    ('Erro', f'```{e}```', False)
-                ])
+                actions.append(f"Falha revogar convites: {e}")
+        else:
+            actions.append("Revogação de convites: desativada")
+
+        # Aplicar slowmode
+        slow_changed = 0
         if self.emergency_cfg.get('apply_slowmode', True):
             target_channels: List[discord.TextChannel] = []
             if self.emergency_cfg.get('apply_slowmode_all_text', True):
-                for ch in guild.text_channels:
-                    target_channels.append(ch)
+                target_channels.extend(guild.text_channels)
             else:
                 ids = set(self.emergency_cfg.get('apply_slowmode_channel_ids', []))
                 for cid in ids:
@@ -198,11 +199,47 @@ class AntiRaidCog(commands.Cog):
                     self._original_slowmodes[ch.id] = ch.rate_limit_per_user
                     if ch.rate_limit_per_user != slow_val:
                         await ch.edit(rate_limit_per_user=slow_val, reason='Anti-Raid emergência slowmode')
+                        slow_changed += 1
                         await asyncio.sleep(0.25)
                 except Exception:
                     pass
-        # Auto-disable
+            actions.append(f"Slowmode {slow_val}s aplicado em {slow_changed} canais")
+        else:
+            actions.append("Slowmode: desativado")
+
+        # Política de timeout para novos
+        if self.emergency_cfg.get('timeout_newcomers', True):
+            tdur = int(self.emergency_cfg.get('timeout_duration_seconds', 900))
+            max_age = float(self.emergency_cfg.get('timeout_account_age_hours_max', 72))
+            actions.append(f"Timeout novatos: {tdur}s (contas <= {max_age:.0f}h)")
+        else:
+            actions.append("Timeout novatos: desativado")
+
+        # Recriação futura de convites
+        if self.emergency_cfg.get('recreate_invites_after', False):
+            actions.append("Convites serão recriados ao encerrar emergência")
+        else:
+            actions.append("Recriação de convites: não programada")
+
+        # Auto disable info
         auto_sec = int(self.emergency_cfg.get('auto_disable_seconds', 600))
+        if auto_sec > 0:
+            actions.append(f"Auto-desativação em {auto_sec}s")
+        else:
+            actions.append("Auto-desativação: manual")
+
+        embed_cfg = self.emergency_cfg.get('notify_embed', {})
+        title = embed_cfg.get('title_activate', 'Modo Emergência Ativado')
+
+        # Monta campos incluindo medidas
+        fields = [
+            ('Motivo', reason, False),
+            ('Entradas janela', str(len(self._join_times)), True),
+            ('Flagged', str(len(self._flagged_join_times)), True),
+            ('Medidas', '\n'.join(actions)[:1024], False)
+        ]
+        await self._log_embed(guild, title, fields)
+
         if auto_sec > 0:
             self._auto_disable_task = asyncio.create_task(self._auto_disable_later(guild, auto_sec))
 
