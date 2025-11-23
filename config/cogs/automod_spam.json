@@ -1,0 +1,44 @@
+{
+  "automod_spam": {
+    "enabled": true,
+    "debug": false,
+    "log_channel_id": 1441978238900506778,
+    "action": "delete_warn",
+    "punishment": {
+      "type": "timeout",
+      "duration_seconds": 300,
+      "reason": "Spam/Flood no chat"
+    },
+    "thresholds": {
+      "flood_messages": 6,
+      "flood_interval_seconds": 5,
+      "repeat_same_content": 3,
+      "repeat_interval_seconds": 12,
+      "max_mentions": 6,
+      "max_emojis": 15,
+      "caps_ratio_trigger": 0.7,
+      "min_caps_length": 15
+    },
+    "ignore": {
+      "channel_ids": [],
+      "user_ids": [],
+      "role_ids": []
+    },
+    "warn": {
+      "message": "{user} detectado spam/flood: {reason}",
+      "delete_delay": 6,
+      "dm_user": false
+    },
+    "messages": {
+      "log_violation": "Spam/Flood: {user} tipo={type} razão={reason}",
+      "status_header": "AntiSpam/AntiFlood — resumo",
+      "status_main": "Enabled: {enabled} | Ação: {action} | Canal log: {log_channel_id}",
+      "status_thresholds": "Flood: {flood_messages}/{flood_interval}s | Repetição: {repeat_same}/{repeat_interval}s | Caps: {caps_ratio} (min {caps_min}) | Mentions: {mentions} | Emojis: {emojis}",
+      "type_flood": "flood de mensagens",
+      "type_repeat": "mensagens repetidas",
+      "type_mentions": "menções excessivas",
+      "type_emojis": "excesso de emojis",
+      "type_caps": "excesso de CAPS"
+    }
+  }
+}

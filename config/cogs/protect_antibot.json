@@ -1,0 +1,32 @@
+{
+  "protect_antibot": {
+    "enabled": true,
+    "action": "kick", 
+    "log_channel_id": 1442046478905245817,
+    "whitelist_bot_ids": [],
+    "whitelist_inviter_ids": [],
+    "whitelist_inviter_role_ids": [],
+    "block_if_missing_inviter": true,
+    "dm_inviter": true,
+    "dm_inviter_message": "Você não pode adicionar bots ao servidor.",
+    "dm_delete_delay": 8,
+    "reason_template": "Bot não autorizado: {bot} (ID {bot_id}) adicionado por {inviter}.",
+    "messages": {
+      "log_action": "{action_title}: {bot} ({bot_id}) ação={action} por {inviter}",
+      "log_fail": "Falha ao {action} bot {bot} ({bot_id}): {error}",
+      "status_header": "Proteção AntiBot — resumo",
+      "status_main": "Habilitado: {enabled} | Ação: {action} | Canal log: {log_channel_id}",
+      "status_whitelists": "Bots permitidos: {bots} | Inviters permitidos: {users} | Roles inviters: {roles}",
+      "dm_inviter": "{user}, você não está autorizado(a) a adicionar bots aqui.",
+      "log_missing_inviter": "Não foi possível determinar o autor do add do bot {bot_id}."
+    },
+    "log_embed": {
+      "enabled": true,
+      "color": "FF8800",
+      "title_action": "Bot bloqueado",
+      "title_fail": "Falha AntiBot",
+      "title_allowed": "Bot permitido (whitelist)"
+    },
+    "debug": false
+  }
+}

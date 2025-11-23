@@ -1,0 +1,50 @@
+{
+  "anti_raid": {
+    "enabled": true,
+    "detection": {
+      "join_threshold_count": 10,
+      "join_threshold_interval_seconds": 30,
+      "min_account_age_hours_flag": 12,
+      "flagged_join_threshold_count": 5,
+      "sliding_window_seconds": 120
+    },
+    "emergency": {
+      "auto_disable_seconds": 600,
+      "apply_slowmode": true,
+      "slowmode_seconds": 8,
+      "apply_slowmode_channel_ids": [],
+      "apply_slowmode_all_text": true,
+      "revert_slowmode_seconds": 0,
+      "timeout_newcomers": true,
+      "timeout_duration_seconds": 900,
+      "timeout_account_age_hours_max": 72,
+      "revoke_invites": true,
+      "recreate_invites_after": false,
+      "notify_channel_id": 0,
+      "notify_ping_role_ids": [],
+      "notify_ping_user_ids": [],
+      "notify_embed": {
+        "enabled": true,
+        "color": "FF0000",
+        "title_activate": "⚠️ Modo Emergência Anti-Raid Ativado",
+        "title_deactivate": "✅ Modo Emergência Desativado"
+      }
+    },
+    "manual": {
+      "command_whitelist_user_ids": [1331464749270958203, 1128502341000253550],
+      "command_whitelist_role_ids": [],
+      "require_manage_guild": true
+    },
+    "messages": {
+      "status_header": "Anti-Raid Status",
+      "status_values": "Emergência: {active} | Entradas janela: {joins} | Flagged: {flagged} | Threshold: {threshold}/{interval}s",
+      "activated_reason": "Ativado automaticamente: {count} entradas em {interval}s",
+      "manual_activate": "Modo emergência ativado manualmente por {user}.",
+      "manual_deactivate": "Modo emergência desativado manualmente por {user}.",
+      "timeout_reason": "Modo emergência anti-raid (conta jovem)",
+      "invite_revoke_fail": "Falha ao revogar convites: {error}"
+    },
+    "log_channel_id": 1441632213740294254,
+    "debug": false
+  }
+}

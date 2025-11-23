@@ -1,0 +1,41 @@
+{
+  "automod_nomention": {
+    "enabled": true,
+    "debug": false,
+    "log_channel_id": 1441978238900506778,
+    "action": "delete_punish", 
+    "punishment": {
+      "type": "timeout",
+      "duration_seconds": 600,
+      "reason": "Menção proibida"
+    },
+    "blocked": {
+      "role_ids": [],
+      "block_everyone": true,
+      "block_here": true,
+      "block_role_mentions": true,
+      "block_user_ids": []
+    },
+    "exempt": {
+      "roles": [],
+      "users": [],
+      "manage_messages_bypass": true
+    },
+    "warn": {
+      "message": "{user} menção não permitida: {reason}",
+      "delete_delay": 6,
+      "dm_user": false
+    },
+    "messages": {
+      "log_violation": "NoMention: {user} tipo={type} razão={reason}",
+      "status_header": "Automod NoMention — resumo",
+      "status_main": "Enabled: {enabled} | Ação: {action} | Canal log: {log_channel_id}",
+      "status_blocked": "Bloqueados: everyone={everyone} here={here} roles={roles} ids={ids} role_mentions={role_mentions}",
+      "type_everyone": "menção @everyone",
+      "type_here": "menção @here",
+      "type_role": "menção de cargo bloqueado",
+      "type_role_generic": "menção de qualquer cargo",
+      "type_user": "menção de usuário bloqueado"
+    }
+  }
+}
