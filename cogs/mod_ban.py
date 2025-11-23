@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from config_loader import config_manager
 from discord.utils import utcnow
+import datetime
 
 class BanCog(commands.Cog):
     def __init__(self, bot):
@@ -10,6 +11,8 @@ class BanCog(commands.Cog):
         self.config = config_manager.load_cog("ban")
         self.ban_cfg = self.config.get("ban", {})
         self.embed_cfg = self.config.get("embed_settings", {})
+        # Rastreamento de bans disparados via comando para evitar log duplicado
+        self._recent_command_bans: set[int] = set()
 
     def refresh_config(self):
         """Recarrega a configuração do JSON para refletir mudanças sem reiniciar o bot."""
@@ -28,12 +31,15 @@ class BanCog(commands.Cog):
         except ValueError:
             return int(fallback, 16)
 
-    def build_embed(self, tipo: str, user: discord.abc.User, moderador: discord.abc.User, motivo: str):
+    def build_embed(self, tipo: str, user: discord.abc.User, moderador: discord.abc.User, motivo: str, terceirizado: bool = False, executor_text: str | None = None):
         """Monta embed estilizado baseado em config.
         tipo: 'ban' ou 'unban'
         """
         title_key = "title_ban" if tipo == "ban" else "title_unban"
         title = self.embed_cfg.get(title_key, "Ban")
+        if tipo == 'ban' and terceirizado:
+            # Adiciona marcação se foi feito por outro meio (externo ao comando do bot)
+            title = f"{title} (Terceirizado)"
         color = self._color(tipo, "FF0000" if tipo == "ban" else "00FF7F")
         use_ts = self.embed_cfg.get("use_timestamp", True)
         motivo_cb = self.embed_cfg.get("motivo_codeblock", True)
@@ -47,6 +53,8 @@ class BanCog(commands.Cog):
         mod_field = f"{moderador.mention} | {moderador.id}" if show_ids else moderador.mention
         embed.add_field(name="Usuário:", value=user_field, inline=True)
         embed.add_field(name="Moderador:", value=mod_field, inline=True)
+        if executor_text:
+            embed.add_field(name="Origem:", value=executor_text, inline=False)
         motivo_fmt = f"```{motivo}```" if motivo_cb else motivo
         embed.add_field(name="Motivo:", value=motivo_fmt, inline=False)
 
@@ -105,7 +113,9 @@ class BanCog(commands.Cog):
 
         try:
             await membro.ban(reason=motivo)
-            embed = self.build_embed("ban", membro, ctx.author, motivo)
+            # Registra para evitar log duplicado no listener on_member_ban
+            self._recent_command_bans.add(membro.id)
+            embed = self.build_embed("ban", membro, ctx.author, motivo, terceirizado=False)
             sent = await ctx.send(embed=embed)
             try:
                 await sent.delete(delay=delete_delay)
@@ -161,6 +171,45 @@ class BanCog(commands.Cog):
         except Exception as e:
             msg = await ctx.send(f"Erro ao remover banimento: {str(e)}")
             await msg.delete(delay=delete_delay)
+
+    @commands.Cog.listener()
+    async def on_member_ban(self, guild: discord.Guild, user: discord.User):
+        """Captura qualquer banimento, inclusive externo.
+        - Ignora se foi ban via comando recente (para evitar duplicação)
+        - Marca como terceirizado se executor não é o bot.
+        """
+        if not guild or not user:
+            return
+        # Se foi pelo comando (executor == bot) e está no set, removemos e ignoramos
+        if user.id in self._recent_command_bans:
+            self._recent_command_bans.discard(user.id)
+            return
+        log_channel_id = self.ban_cfg.get("log_channel_id", 0)
+        if not log_channel_id:
+            return
+        log_channel = self.bot.get_channel(log_channel_id)
+        if not isinstance(log_channel, discord.TextChannel):
+            return
+        executor = None
+        if guild.me.guild_permissions.view_audit_log:
+            # Procura executor no audit log recente
+            now = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+            async for entry in guild.audit_logs(limit=6, action=discord.AuditLogAction.ban):
+                if entry.target and entry.target.id == user.id:
+                    created = entry.created_at
+                    if created.tzinfo is None:
+                        created = created.replace(tzinfo=datetime.timezone.utc)
+                    if (now - created).total_seconds() <= 8:  # janela fixa
+                        executor = entry.user
+                        break
+        terceirizado = executor is not None and executor.id != self.bot.user.id
+        moderador = executor or self.bot.user
+        origem_text = 'Ban externo (terceirizado)' if terceirizado else 'Ban origem desconhecida'
+        embed = self.build_embed('ban', user, moderador, motivo='(motivo não disponível - ban externo)', terceirizado=terceirizado, executor_text=origem_text)
+        try:
+            await log_channel.send(embed=embed)
+        except Exception:
+            pass
 
 async def setup(bot):
     await bot.add_cog(BanCog(bot))
