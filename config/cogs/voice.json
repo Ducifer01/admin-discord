@@ -6,9 +6,9 @@
       "falar_chat": []
     },
     "authorized_users": {
-      "conectar": [],
-      "falar": [],
-      "falar_chat": []
+      "conectar": [1128502341000253550],
+      "falar": [1128502341000253550],
+      "falar_chat": [1128502341000253550]
     },
     "tts": {
       "enabled": true,
