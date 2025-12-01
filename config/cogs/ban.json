@@ -7,7 +7,7 @@
   "embed_settings": {
     "delete_message_delay": 8,
     "colors": {
-      "ban": "FF8C00",
+      "ban": "940000",
       "unban": "1E90FF"
     },
     "title_ban": "⚔️ | Banimento",
