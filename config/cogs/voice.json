@@ -1,0 +1,28 @@
+{
+  "voice": {
+    "authorized_roles": {
+      "conectar": [],
+      "falar": [],
+      "falar_chat": []
+    },
+    "authorized_users": {
+      "conectar": [],
+      "falar": [],
+      "falar_chat": []
+    },
+    "tts": {
+      "enabled": true,
+      "language": "pt",
+      "slow": false,
+      "ffmpeg_path": "ffmpeg"
+    },
+    "messages": {
+      "no_permission": "Você não tem permissão para usar este comando.",
+      "not_connected": "O bot não está conectado a uma call.",
+      "connected": "Conectado em {channel}.",
+      "moved": "Movido para {channel}.",
+      "speaking": "Falando na call: {text}",
+      "sent_chat": "Mensagem enviada em {channel}."
+    }
+  }
+}
