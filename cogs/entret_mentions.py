@@ -96,16 +96,30 @@ class EntretMentionsCog(commands.Cog):
         if m:
             try:
                 eid = int(m.group(1))
+                # 1) tenta no próprio servidor
                 e = discord.utils.get(guild.emojis, id=eid)
-                return e
+                if e:
+                    return e
+                # 2) tenta cache global do bot (emojis externos)
+                e2 = self.bot.get_emoji(eid)
+                if e2:
+                    return e2
+                return None
             except Exception:
                 return None
         # id numérico puro
         if token.isdigit():
             try:
                 eid = int(token)
+                # 1) tenta no próprio servidor
                 e = discord.utils.get(guild.emojis, id=eid)
-                return e
+                if e:
+                    return e
+                # 2) tenta cache global do bot (emojis externos)
+                e2 = self.bot.get_emoji(eid)
+                if e2:
+                    return e2
+                return None
             except Exception:
                 return None
         # assume unicode
