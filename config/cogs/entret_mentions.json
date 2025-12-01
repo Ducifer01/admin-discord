@@ -23,7 +23,7 @@
       "bot": {
         "enabled": true,
         "react_emojis": ["👀"],
-        "reply": "Oi! Eu sou o {bot}. Precisa de algo, {author}?",
+        "reply": "",
         "cooldown_seconds": 10
       }
     },
