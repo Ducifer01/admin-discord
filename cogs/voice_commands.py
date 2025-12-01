@@ -1,11 +1,16 @@
 import os
 import asyncio
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 import discord
 from discord import app_commands
 from discord.ext import commands
-from gtts import gTTS
+
+try:  # Import opcional do gTTS para evitar falha de carregamento da cog
+    from gtts import gTTS
+    _GTTS_AVAILABLE = True
+except ImportError:
+    _GTTS_AVAILABLE = False
 
 from config_loader import config_manager
 
@@ -42,6 +47,8 @@ class VoiceCommandsCog(commands.Cog):
         return ffmpeg_path
 
     async def _play_tts(self, vc: discord.VoiceClient, text: str, lang: str = "pt", slow: bool = False):
+        if not _GTTS_AVAILABLE:
+            raise RuntimeError("Biblioteca gTTS não instalada. Use: pip install gTTS")
         # Gera arquivo temporário TTS
         os.makedirs("data", exist_ok=True)
         file_path = os.path.join("data", "tts_tmp.mp3")
@@ -90,6 +97,8 @@ class VoiceCommandsCog(commands.Cog):
             return await interaction.response.send_message(msg, ephemeral=True)
         if not self.tts_cfg.get("enabled", True):
             return await interaction.response.send_message("TTS está desativado nas configurações.", ephemeral=True)
+        if not _GTTS_AVAILABLE:
+            return await interaction.response.send_message("TTS indisponível (gTTS não instalado).", ephemeral=True)
         try:
             if interaction.guild is None:
                 return await interaction.response.send_message("Este comando deve ser usado em um servidor.", ephemeral=True)
