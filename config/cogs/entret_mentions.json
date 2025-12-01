@@ -22,7 +22,7 @@
       ],
       "bot": {
         "enabled": true,
-        "react_emojis": ["<:emoji_15:1066011547467534426>"],
+        "react_emojis": ["<a:emoji_15:1066011547467534426>"],
         "reply": "",
         "cooldown_seconds": 10
       }
