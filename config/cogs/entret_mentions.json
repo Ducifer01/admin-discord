@@ -1,0 +1,36 @@
+{
+  "entret_mentions": {
+    "enabled": true,
+    "ignore_channels": [],
+    "bypass_roles": [],
+    "targets": {
+      "users": [
+        {
+          "id": 1128502341000253550,
+          "react_emojis": ["1127843170412142642"],
+          "reply": "",
+          "cooldown_seconds": 5
+        }
+      ],
+      "roles": [
+        {
+          "id": 0,
+          "react_emojis": ["✅"],
+          "reply": "Você mencionou o cargo {role}.",
+          "cooldown_seconds": 5
+        }
+      ],
+      "bot": {
+        "enabled": true,
+        "react_emojis": ["👀"],
+        "reply": "Oi! Eu sou o {bot}. Precisa de algo, {author}?",
+        "cooldown_seconds": 10
+      }
+    },
+    "messages": {
+      "replied": "Mensagem enviada.",
+      "reacted": "Reações adicionadas."
+    },
+    "debug": false
+  }
+}

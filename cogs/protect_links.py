@@ -14,6 +14,9 @@ DEFAULTS = {
         "domains_blacklist": [],
         "regex_whitelist": [],
         "regex_blacklist": [],
+        "detection": {
+            "require_protocol_or_www": True
+        },
         "delete_reason_whitelist_fail": "Link não permitido neste servidor.",
         "delete_reason_blacklist_hit": "Link bloqueado.",
         "bypass_roles": [],
@@ -42,8 +45,11 @@ DEFAULTS = {
     }
 }
 
-# Regex simples para detectar links (http(s):// ou domínio com ponto + path)
-LINK_REGEX = re.compile(r"(https?://[\w.-]+(?:/[\w\-._~:/?#\[\]@!$&'()*+,;=%]*)?|(?:[\w.-]+\.[a-zA-Z]{2,})(?:/[\w\-._~:/?#\[\]@!$&'()*+,;=%]*)?)")
+# Regex para detectar links
+# Estrito: exige http(s):// ou prefixo www.
+STRICT_LINK_REGEX = re.compile(r"(https?://[^\s]+|www\.[^\s]+)", re.IGNORECASE)
+# Legado: também considera tokens com TLD como link (maior chance de falso positivo)
+LEGACY_LINK_REGEX = re.compile(r"(https?://[\w.-]+(?:/[\w\-._~:/?#\[\]@!$&'()*+,;=%]*)?|(?:[\w.-]+\.[a-zA-Z]{2,})(?:/[\w\-._~:/?#\[\]@!$&'()*+,;=%]*)?)", re.IGNORECASE)
 
 class ProtectLinksCog(commands.Cog):
     """Protege contra envio de links fora da política definida."""
@@ -53,6 +59,8 @@ class ProtectLinksCog(commands.Cog):
         self.cfg = self.raw_cfg.get('protect_links', {})
         self.enabled: bool = self.cfg.get('enabled', True)
         self.mode: str = self.cfg.get('mode', 'whitelist').lower()
+        detect_cfg: Dict[str, Any] = self.cfg.get('detection', {})
+        self.require_protocol_or_www: bool = bool(detect_cfg.get('require_protocol_or_www', True))
         self.dom_whitelist: List[str] = [d.lower() for d in self.cfg.get('domains_whitelist', [])]
         self.dom_blacklist: List[str] = [d.lower() for d in self.cfg.get('domains_blacklist', [])]
         self.regex_whitelist: List[str] = self.cfg.get('regex_whitelist', [])
@@ -65,6 +73,8 @@ class ProtectLinksCog(commands.Cog):
         self.feedback_cfg: Dict[str, Any] = self.cfg.get('feedback', {})
         self.msgs: Dict[str, str] = self.cfg.get('messages', {})
         self.debug: bool = self.cfg.get('debug', False)
+        # Compila regex de acordo com configuração
+        self._link_regex = STRICT_LINK_REGEX if self.require_protocol_or_www else LEGACY_LINK_REGEX
 
     def refresh_config(self):
         self.raw_cfg = config_manager.reload_cog('protect_links')
@@ -167,7 +177,7 @@ class ProtectLinksCog(commands.Cog):
             return
 
         matched_any = False
-        for match in LINK_REGEX.finditer(message.content):
+        for match in self._link_regex.finditer(message.content):
             raw_link = match.group(0)
             domain = self.extract_domain(raw_link)
             if not domain:

@@ -6,6 +6,9 @@
     "domains_blacklist": [],
     "regex_whitelist": [],
     "regex_blacklist": [],
+    "detection": {
+      "require_protocol_or_www": true
+    },
     "delete_reason_whitelist_fail": "Link não permitido neste servidor.",
     "delete_reason_blacklist_hit": "Link bloqueado.",
     "bypass_roles": [],
