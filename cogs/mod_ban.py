@@ -220,6 +220,7 @@ class BanCog(commands.Cog):
         if not isinstance(log_channel, discord.TextChannel):
             return
         executor = None
+        reason_text: str | None = None
         if guild.me.guild_permissions.view_audit_log:
             # Procura executor no audit log recente
             now = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
@@ -230,11 +231,14 @@ class BanCog(commands.Cog):
                         created = created.replace(tzinfo=datetime.timezone.utc)
                     if (now - created).total_seconds() <= 8:  # janela fixa
                         executor = entry.user
+                        reason_text = entry.reason
                         break
         terceirizado = executor is not None and executor.id != self.bot.user.id
         moderador = executor or self.bot.user
-        origem_text = 'Ban externo (terceirizado)' if terceirizado else 'Ban origem desconhecida'
-        embed = self.build_embed('ban', user, moderador, motivo='(motivo não disponível - ban externo)', terceirizado=terceirizado, executor_text=origem_text)
+        # Motivo preferindo o audit log; se executor for o próprio bot, não marcamos como terceirizado
+        motivo_final = reason_text or '(motivo não disponível)'
+        origem_text = None if (executor and executor.id == self.bot.user.id) else ('Ban externo (terceirizado)' if terceirizado else 'Ban origem desconhecida')
+        embed = self.build_embed('ban', user, moderador, motivo=motivo_final, terceirizado=terceirizado, executor_text=origem_text)
         try:
             await log_channel.send(embed=embed)
         except Exception:

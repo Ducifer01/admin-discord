@@ -14,11 +14,8 @@
     },
     "exempt_user_ids": [],
     "exempt_role_ids": [],
-    "exempt_invite_codes": [],
-    "feedback_dm": true,
+  "exempt_invite_codes": [],
     "messages": {
-      "dm_banned": "Sua conta é muito nova para este servidor e foi banida.",
-      "dm_kicked": "Sua conta é muito nova para este servidor e foi expulsa.",
       "log_banned": "{user} banido (idade {age_hours}h < {min_age}h)",
       "log_kicked": "{user} expulso (idade {age_hours}h < {min_age}h)",
       "log_fail": "Falha ao punir {user}: {error}",

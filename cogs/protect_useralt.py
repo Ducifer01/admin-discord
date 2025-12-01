@@ -24,10 +24,7 @@ DEFAULTS = {
         "exempt_user_ids": [],
         "exempt_role_ids": [],
         "exempt_invite_codes": [],
-        "feedback_dm": False,
         "messages": {
-            "dm_banned": "Sua conta é muito nova para este servidor e foi banida.",
-            "dm_kicked": "Sua conta é muito nova para este servidor e foi expulsa.",
             "log_banned": "{user} banido (idade {age_hours}h < {min_age}h)",
             "log_kicked": "{user} expulso (idade {age_hours}h < {min_age}h)",
             "log_fail": "Falha ao punir {user}: {error}",
@@ -55,7 +52,6 @@ class ProtectUserAltCog(commands.Cog):
         self.exempt_user_ids: Set[int] = set(self.cfg.get('exempt_user_ids', []))
         self.exempt_role_ids: Set[int] = set(self.cfg.get('exempt_role_ids', []))
         self.exempt_invite_codes: Set[str] = set([c.lower() for c in self.cfg.get('exempt_invite_codes', [])])
-        self.feedback_dm: bool = self.cfg.get('feedback_dm', False)
         self.msgs: Dict[str, str] = self.cfg.get('messages', {})
         self.debug: bool = self.cfg.get('debug', False)
 
@@ -109,22 +105,13 @@ class ProtectUserAltCog(commands.Cog):
         return False
 
     async def _punish(self, member: discord.Member, age_hours: float):
-        # DM opcional
-        if self.feedback_dm:
-            try:
-                msg_key = 'dm_banned' if self.do_ban else 'dm_kicked'
-                await member.send(self.msgs.get(msg_key, 'Sua conta é muito nova para este servidor.'))
-            except Exception:
-                pass
         # Banir ou expulsar
         action_title = self.log_embed_cfg.get('title_banned' if self.do_ban else 'title_kicked', 'Conta nova punida')
         if self.do_ban:
             try:
-                await member.ban(reason=f"Conta nova (<{self.min_age_hours}h)")
-                await self._log(member.guild, action_title, [
-                    ('Usuário', member.mention, True),
-                    ('Idade (h)', f"{age_hours:.1f}", True)
-                ])
+                # Incluir motivo detalhado com idade real da conta; log será feito pela cog de Ban via on_member_ban
+                await member.ban(reason=f"Conta nova ({age_hours:.1f}h < {self.min_age_hours}h)")
+                # Não enviar log próprio para bans bem-sucedidos; o log padrão de ban cuidará disso
                 return
             except Exception as e:
                 if self.kick_if_ban_fails:
