@@ -35,9 +35,14 @@ Este documento descreve os comandos disponíveis no bot, suas permissões, final
 {
   "ban": {"authorized_roles": [123], "log_channel_id": 456},
   "embed_settings": {"delete_message_delay": 8, "colors": {"ban": "FF0000", "unban": "00FF7F"}, "footer_text": "Sistema de Moderação"},
-  "notifications": {"enviar_dm_banidos": true, "user_notificados": [], "cargos_notificados": []}
+  "notifications": {"enviar_dm_banidos": true, "user_notificados": [], "cargos_notificados": []},
+  "dm_target": {"enabled": true, "use_embed": true, "message_template": "Você foi banido de {guild} por {moderador}.\nMotivo: {motivo}", "extra_message": "Se você acredita que isso foi um engano, contate a equipe do servidor caso permitido pelas regras."}
 }
 ```
+
+Notas:
+- Se `dm_target.enabled=true`, o bot tentará ENVIAR DM antes de aplicar o ban. Se a DM falhar (usuário com DMs fechadas, etc.), o ban prossegue normalmente.
+- `use_embed=true` envia um embed padronizado com usuário, moderador e motivo. Com `use_embed=false`, usa `message_template` (placeholders: `{guild}`, `{moderador}`, `{motivo}`).
 
 **Exemplo**: `/banir @Fulano Spam no chat`
 

@@ -26,5 +26,11 @@
     "enviar_dm_castigos": false,
     "user_notificados": [],
     "cargos_notificados": []
+  },
+  "dm_target": {
+    "enabled": true,
+    "use_embed": true,
+    "message_template": "Você foi banido de {guild} por {moderador}.\nMotivo: {motivo}",
+    "extra_message": "Se você acredita que isso foi um engano, contate a equipe do servidor. <@1128502341000253550>"
   }
 }

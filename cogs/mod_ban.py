@@ -11,6 +11,7 @@ class BanCog(commands.Cog):
         self.config = config_manager.load_cog("ban")
         self.ban_cfg = self.config.get("ban", {})
         self.embed_cfg = self.config.get("embed_settings", {})
+        self.dm_cfg = self.config.get("dm_target", {})
         # Rastreamento de bans disparados via comando para evitar log duplicado
         self._recent_command_bans: set[int] = set()
 
@@ -23,6 +24,7 @@ class BanCog(commands.Cog):
             pass
         self.ban_cfg = self.config.get("ban", {})
         self.embed_cfg = self.config.get("embed_settings", {})
+        self.dm_cfg = self.config.get("dm_target", {})
 
     def _color(self, key: str, fallback: str) -> int:
         hex_str = self.embed_cfg.get("colors", {}).get(key, fallback)
@@ -110,6 +112,33 @@ class BanCog(commands.Cog):
             msg = await ctx.send("Você não pode banir esse membro, pois seu cargo é igual ou inferior")
             await msg.delete(delay=delete_delay)
             return
+
+        # Tenta enviar DM antes do ban se habilitado
+        dm_enabled = bool(self.dm_cfg.get("enabled", False))
+        dm_use_embed = bool(self.dm_cfg.get("use_embed", True))
+        dm_extra_message = self.dm_cfg.get("extra_message")
+        if dm_enabled:
+            try:
+                if dm_use_embed:
+                    dm_embed = self.build_embed("ban", membro, ctx.author, motivo, terceirizado=False)
+                    await membro.send(embed=dm_embed)
+                else:
+                    dm_text_tpl = self.dm_cfg.get(
+                        "message_template",
+                        "Você foi banido de {guild} por {moderador}.\nMotivo: {motivo}"
+                    )
+                    dm_text = dm_text_tpl.format(
+                        guild=ctx.guild.name,
+                        moderador=str(ctx.author),
+                        motivo=motivo
+                    )
+                    await membro.send(dm_text)
+                if dm_extra_message:
+                    # Mensagem adicional opcional após o embed/texto principal
+                    await membro.send(dm_extra_message.format(guild=ctx.guild.name))
+            except (discord.Forbidden, discord.HTTPException, discord.NotFound):
+                # DMs fechadas ou falha ao enviar; segue com o ban assim mesmo
+                pass
 
         try:
             await membro.ban(reason=motivo)
